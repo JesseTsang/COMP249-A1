@@ -61,23 +61,38 @@ public class BattleshipGame
 		
 		while(shipsLeft != 0)
 		{
-			System.out.println("You have " + shipsLeft + " ship[s] left. Please choose a spot for one of your ship[s]:");
+			System.out.println("You have " + shipsLeft + " ship[s] left. Please choose a spot for one of your ship[s]: [A..H][1..8]");
 			
 			playerShipPos = shipInput.next();
 				
 			if(isValidPosition(playerShipPos) == true)
 			{
-				int shipIndexPos = getArrayIndex(playerShipPos);
-				
-				resourcesPosition[shipIndexPos] = player.getShipSign();
-				board.setBattleshipGridArray(resourcesPosition); //Map that sees all
-				player.setBattleMap(resourcesPosition);			 //Map that only show player's resources
-				
-				shipsLeft--;
+				if(isPositionFree(playerShipPos, board.getBattleshipGridArray()) == true)
+				{
+					int shipIndexPos = getArrayIndex(playerShipPos);
+					
+					resourcesPosition[shipIndexPos] = player.getShipSign();
+					board.setBattleshipGridArray(resourcesPosition); //Map that sees all
+					player.setBattleMap(resourcesPosition);			 //Map that only show player's resources
+					
+					shipsLeft--;
+					
+					//Update player's ship positions.
+					Board.displayBoard(player.getBattleMap());
+				}
+				else
+				{
+					System.out.println("Invalid input. The position is already occupied. Please re-enter.");
+					
+					continue;
+				}
 			}
-			
-			//Update player's ship positions.
-			Board.displayBoard(player.getBattleMap());
+			else
+			{
+				System.out.println("Invalid input. The valid input range is [A..H][1..8]. Please re-enter.");
+				
+				continue;
+			}	
 		}
 		
 		Scanner bombInput = new Scanner(System.in);
@@ -91,40 +106,96 @@ public class BattleshipGame
 					
 			if(isValidPosition(playerBombPos) == true)
 			{
-				int bombIndexPos = getArrayIndex(playerBombPos);
-				
-				resourcesPosition[bombIndexPos] = player.getBombSign();
-				board.setBattleshipGridArray(resourcesPosition);
-				player.setBattleMap(resourcesPosition);
-				
-				bombsLeft--;
+				if(isPositionFree(playerBombPos, board.getBattleshipGridArray()) == true)
+				{
+					int bombIndexPos = getArrayIndex(playerBombPos);
+					
+					resourcesPosition[bombIndexPos] = player.getBombSign();
+					board.setBattleshipGridArray(resourcesPosition);
+					player.setBattleMap(resourcesPosition);
+					
+					bombsLeft--;
+					
+					//Update player's ship positions.
+					Board.displayBoard(player.getBattleMap());	
+				}
+				else //Occupied space
+				{
+					System.out.println("Invalid input. The position is already occupied. Please re-enter.");
+					
+					continue;
+				}
 			}
-			
-			//Update player's ship positions.
-			Board.displayBoard(player.getBattleMap());	
+			else //Invalid position. Out of board range.
+			{
+				System.out.println("Invalid input. The valid input range is [A..H][1..8]. Please re-enter.");
+				
+				continue;				
+			}			
 		}
 		
 		bombInput.close();
 	}
 
-	
-
 	private boolean isValidPosition(String playerShipPos) 
+	{		
+		final int COL_COORDINATE = 0;
+		final int ROW_COORDINATE = 1;
+		
+		boolean isStingLengthValid = (playerShipPos != null && playerShipPos.length() == 2);
+		boolean isColumnLetter = Character.isLetter(playerShipPos.charAt(COL_COORDINATE));
+		boolean isColumnInRange;
+		boolean isRowNumeric = Character.isDigit(playerShipPos.charAt(ROW_COORDINATE));
+		boolean isRowInRange;
+		
+		//If it is not NULL or length != 2
+		//If the first character is a letter
+		//If the second character is a number
+		if((isStingLengthValid == true) && (isColumnLetter == true) && (isRowNumeric == true))
+		{
+			char columnChar = Character.toUpperCase(playerShipPos.charAt(COL_COORDINATE));
+			isColumnInRange = (columnChar >= 'A' && columnChar <= 'H');
+			
+			int rowIndex = Character.getNumericValue(playerShipPos.charAt(ROW_COORDINATE));
+			isRowInRange = (rowIndex >= 1 && rowIndex <= 8);
+			
+			if(isColumnInRange == true && isRowInRange == true)
+			{
+				return true;			
+			}
+		}
+			
+		return false;
+	}
+	
+	private boolean isPositionFree(String playerShipPos, String[] boardFullMap) 
 	{
-		// TODO Auto-generated method stub
-		return true;
+		int position = getArrayIndex(playerShipPos);
+		
+		if(boardFullMap[position].equals("_"))
+		{
+			return true;
+		}
+		else
+		{
+			System.out.println("POSITION NOT EMPTY! " + boardFullMap[position]);
+		}
+		
+		return false;
 	}
 	
 	private int getArrayIndex(String playerShipPos) 
 	{
 		final int ASCII_COEFFICIENT = 65;
+		final int COL_COORDINATE = 0;
+		final int ROW_COORDINATE = 1;
 		
 		int resultIndex = 0;
 		
 		//Extract row (1..8) and column (A..H) value from input
-		int row = Integer.parseInt(playerShipPos.substring(0,1));
+		int row = Integer.parseInt(playerShipPos.substring(ROW_COORDINATE));
 			
-		char columnChar = Character.toUpperCase(playerShipPos.charAt(1));
+		char columnChar = Character.toUpperCase(playerShipPos.charAt(COL_COORDINATE));
 					
 		//Translate column char value into integer (0..7)
 		int column = (int)columnChar - ASCII_COEFFICIENT;
