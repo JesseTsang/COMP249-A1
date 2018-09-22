@@ -1,5 +1,6 @@
 package comp249.a1.battleship;
 
+import java.util.Random;
 import java.util.Scanner;
 
 public class BattleshipGame 
@@ -210,14 +211,47 @@ public class BattleshipGame
 	}
 
 	private void generateShips(Player player, Board board) 
-	{
-		// TODO Auto-generated method stub
+	{		
+		String[] battlemap = board.getBattleshipGridArray();
+		
+		Random rand = new Random();
+		
+		int shipsAvailable = MAX_SHIPS;
+		int bombsAvailable = MAX_BOMBS;
+		
+		int boardSize = Board.BOARD_COLUMN_SIZE * Board.BOARD_ROW_SIZE;
+		
+		int randomPosition;
+		
+		while(shipsAvailable > 0)
+		{
+			randomPosition = rand.nextInt(boardSize);
+			
+			if(battlemap[randomPosition].equals("_"))
+			{
+				battlemap[randomPosition] = player.getShipSign();
+				
+				shipsAvailable--;
+			}	
+		}
+		
+		while(bombsAvailable > 0)
+		{
+			randomPosition = rand.nextInt(boardSize);
+			
+			if(battlemap[randomPosition].equals("_"))
+			{
+				battlemap[randomPosition] = player.getBombSign();
+				
+				bombsAvailable--;
+			}	
+		}
 		
 	}
 
 	private void startGame(Player player1, Player player2, Board board) 
 	{
-		// TODO Auto-generated method stub		
+		board.displayBoard();
 	}
 
 	public void run()

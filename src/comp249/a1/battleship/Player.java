@@ -8,7 +8,7 @@ public class Player
 	private String shipSign;
 	private String bombSign;
 	
-	private String[] battleMap;
+	private String[] battleMap; //A "board" with only this player's resources in it. Use with Board.displayBoard(battleMap) to show user his map.
 	
 	public static final int NUM_OF_SHIPS = 6;
 	public static final int BOARD_SIZE = 64;
@@ -63,6 +63,4 @@ public class Player
 	{
 		this.battleMap = battleMap;
 	}
-	
-	
 }
