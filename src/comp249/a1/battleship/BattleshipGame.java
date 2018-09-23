@@ -1,8 +1,22 @@
 package comp249.a1.battleship;
 
+import java.util.LinkedList;
+import java.util.Queue;
 import java.util.Random;
 import java.util.Scanner;
 
+
+/**
+* <h1>The Battleship program implements an application that play the
+* Battleship game between human and NPC or any combination between them.</h1>
+* <p>
+* 1. User could run the program by invoking the constructor and providing the type of two players.
+* 2. Then invoke the startGame() method.
+*
+* @author  Jesse Tsang
+* @version 1.0
+* @since   23th September 2018
+*/
 public class BattleshipGame 
 {
 	private Player player1, player2;
@@ -17,33 +31,54 @@ public class BattleshipGame
 	private static final String PLAYER2_SHIP_SIGN = "s";
 	private static final String PLAYER2_BOMB_SIGN = "b";
 	
-	public BattleshipGame()
+	public BattleshipGame(PlayerType type1, PlayerType type2)
 	{
-		this.player1 = new Player(PLAYER1_SHIP_SIGN, PLAYER1_BOMB_SIGN);
-		this.player2 = new Player(PLAYER2_SHIP_SIGN, PLAYER2_BOMB_SIGN);
+		this.player1 = new Player(PLAYER1_SHIP_SIGN, PLAYER1_BOMB_SIGN, type1);
+		this.player2 = new Player(PLAYER2_SHIP_SIGN, PLAYER2_BOMB_SIGN, type2);
 		
 		this.board = new Board();
 	}
 	
 	private void getPlayerInfo(Player player) 
 	{
-		System.out.println("Hello player, please enter your name: ");
-		
-		@SuppressWarnings("resource")
-		Scanner playerInput = new Scanner(System.in);
-		String playerName = playerInput.next();
-		
-		if(playerName == null)
+		if(player.getPlayerType() == PlayerType.HUMAN)
 		{
-			System.out.println("No name detected. Defaulted name is used.");
-			player.setName("Player1");
+			System.out.println("Hello player, please enter your name: ");
+			
+			@SuppressWarnings("resource")
+			Scanner playerInput = new Scanner(System.in);
+			String playerName = playerInput.next();
+			
+			if(playerName == null)
+			{
+				System.out.println("No name detected. Defaulted name is used.");
+				player.setName("Player1");
+			}
+			else
+			{
+				player.setName(playerName);
+			}		
 		}
-		else
+		else if(player.getPlayerType() == PlayerType.COMPUTER)
 		{
+			String playerName = "Computer";
 			player.setName(playerName);
-		}	
+		}		
 	}
 	
+	private void setResources(Player player, Board board) 
+	{
+		if(player.getPlayerType() == PlayerType.HUMAN)
+		{
+			setShips(player, board);
+			setBombs(player, board);
+		}
+		else if(player.getPlayerType() == PlayerType.COMPUTER)
+		{
+			generateResources(player, board);	
+		}
+	}
+
 	private void setShips(Player player, Board board) 
 	{
 		System.out.println("Hello " + player.getName() + "! " + "You have " + MAX_SHIPS + " ships and " + MAX_BOMBS +" bombs available:");
@@ -52,7 +87,6 @@ public class BattleshipGame
 		board.displayBoard();
 		
 		int shipsLeft = MAX_SHIPS;
-		int bombsLeft = MAX_BOMBS;
 		
 		String[] resourcesPosition = board.getBattleshipGridArray();
 		
@@ -96,6 +130,14 @@ public class BattleshipGame
 			}	
 		}
 		
+	}
+	
+	private void setBombs(Player player, Board board) 
+	{
+		int bombsLeft = MAX_BOMBS;
+		String[] resourcesPosition = board.getBattleshipGridArray();
+		
+		@SuppressWarnings("resource")
 		Scanner bombInput = new Scanner(System.in);
 		String playerBombPos;
 		
@@ -134,9 +176,46 @@ public class BattleshipGame
 				continue;				
 			}			
 		}
-		
-		bombInput.close();
 	}
+	
+	private void generateResources(Player player, Board board) 
+	{		
+		String[] battlemap = board.getBattleshipGridArray();
+		
+		Random rand = new Random();
+		
+		int shipsAvailable = MAX_SHIPS;
+		int bombsAvailable = MAX_BOMBS;
+		
+		int boardSize = Board.BOARD_COLUMN_SIZE * Board.BOARD_ROW_SIZE;
+		
+		int randomPosition;
+		
+		while(shipsAvailable > 0)
+		{
+			randomPosition = rand.nextInt(boardSize);
+			
+			if(battlemap[randomPosition].equals("_"))
+			{
+				battlemap[randomPosition] = player.getShipSign();
+				
+				shipsAvailable--;
+			}	
+		}
+		
+		while(bombsAvailable > 0)
+		{
+			randomPosition = rand.nextInt(boardSize);
+			
+			if(battlemap[randomPosition].equals("_"))
+			{
+				battlemap[randomPosition] = player.getBombSign();
+				
+				bombsAvailable--;
+			}	
+		}
+		
+	}	
 
 	private boolean isValidPosition(String playerShipPos) 
 	{		
@@ -210,61 +289,194 @@ public class BattleshipGame
 		return resultIndex;	
 	}
 
-	private void generateShips(Player player, Board board) 
-	{		
-		String[] battlemap = board.getBattleshipGridArray();
-		
-		Random rand = new Random();
-		
-		int shipsAvailable = MAX_SHIPS;
-		int bombsAvailable = MAX_BOMBS;
-		
-		int boardSize = Board.BOARD_COLUMN_SIZE * Board.BOARD_ROW_SIZE;
-		
-		int randomPosition;
-		
-		while(shipsAvailable > 0)
-		{
-			randomPosition = rand.nextInt(boardSize);
-			
-			if(battlemap[randomPosition].equals("_"))
-			{
-				battlemap[randomPosition] = player.getShipSign();
-				
-				shipsAvailable--;
-			}	
-		}
-		
-		while(bombsAvailable > 0)
-		{
-			randomPosition = rand.nextInt(boardSize);
-			
-			if(battlemap[randomPosition].equals("_"))
-			{
-				battlemap[randomPosition] = player.getBombSign();
-				
-				bombsAvailable--;
-			}	
-		}
-		
-	}
 
-	private void startGame(Player player1, Player player2, Board board) 
-	{
-		board.displayBoard();
-	}
-
-	public void run()
+	public void startGame() 
 	{
 		getPlayerInfo(player1);
-		setShips(player1, board);
-		generateShips(player2, board);
-		startGame(player1, player2, board);				
+		getPlayerInfo(player2);
+		
+		setResources(player1, board);
+		setResources(player2, board);
+					
+		Player currentPlayer;
+		Player otherPlayer;
+		
+		Queue<Player> waitingQueue = new LinkedList<>();
+			
+		currentPlayer = generateStartPlayer();
+		otherPlayer = getOtherPlayer(currentPlayer);
+		
+		waitingQueue.add(currentPlayer);
+		
+		//Continue the game as long as the queue has player[s].				
+		while(!waitingQueue.isEmpty())
+		{
+			System.out.println("----- Current map -----");
+			board.displayBoard();
+			
+			currentPlayer = waitingQueue.remove();
+			otherPlayer = getOtherPlayer(currentPlayer);
+			
+			takeTurn(currentPlayer, otherPlayer, waitingQueue);				
+		}
 	}
 	
+	private void takeTurn(Player currentPlayer, Player otherPlayer, Queue<Player> waitingQueue) 
+	{
+		//Trio variables to get user coordinate input.
+		@SuppressWarnings("resource")
+		Scanner targetInput = new Scanner(System.in);
+		String targetString;
+		int targetCoordinate;
+		
+		String[] turnMap = board.getBattleshipGridArray();
+		
+		System.out.println("Player " + currentPlayer.getName() + "! It is your turn!");
+		System.out.println("Enter a coordinate to bomb:");
+		
+		targetString = targetInput.next();
+		
+		if(isValidPosition(targetString) == true)
+		{
+			targetCoordinate = getArrayIndex(targetString);
+			
+			//Hits bombs condition
+			if(turnMap[targetCoordinate].equalsIgnoreCase("B"))
+			{
+				System.out.println("Player hits a bomb!! HAHA!!");
+				System.out.println("Player's turn end~ Player loses 2 turns!!");
+				
+				waitingQueue.add(otherPlayer);
+				waitingQueue.add(otherPlayer);
+			}
+			else if(turnMap[targetCoordinate].equalsIgnoreCase("S")) //Hits ships condition
+			{
+				System.out.println("Player hits a ship!! Very good!!");
+				deductHP(targetCoordinate);
+				
+				waitingQueue.add(otherPlayer);
+			}
+			else if(turnMap[targetCoordinate].equals("_")) //Hits nothing condition
+			{
+				System.out.println("Bomb hits nothing!");
+				
+				waitingQueue.add(otherPlayer);
+			}
+			else
+			{
+				System.out.println("Error: takeTurn() - Posision not bombs, not ship, nor empty.");
+				System.out.println("Cell data: "+ turnMap[targetCoordinate]);
+			}
+		}
+		
+	}
+
+	private void deductHP(int targetCoordinate) 
+	{
+		String[] battleMap = board.getBattleshipGridArray();
+		
+		int hp;
+		
+		if(battleMap[targetCoordinate].equals(PLAYER1_SHIP_SIGN))
+		{
+			hp = player1.getHp();
+			player1.setHp(hp - 1);	
+			
+			if(player1.getHp() <= 0)
+			{
+				endGame();				
+			}
+		}
+		else if(battleMap[targetCoordinate].equals(PLAYER2_SHIP_SIGN))
+		{
+			hp = player2.getHp();
+			player2.setHp(hp - 1);
+			
+			if(player2.getHp() <= 0)
+			{
+				endGame();				
+			}
+		}
+		else
+		{
+			System.out.println("Error: deductHP() - Position is not a ship: " + battleMap[targetCoordinate]);	
+		}
+	}
+	
+	private Player generateStartPlayer() 
+	{
+		Player startPlayer;
+		Random rand = new Random();
+		
+		int startNumber = rand.nextInt(2);
+		
+		if(startNumber == 0)
+		{
+			startPlayer = player1;			
+		}
+		else
+		{
+			startPlayer = player2;
+		}
+		
+		System.out.println("Start number is: " + startNumber);
+		System.out.println("Start player is: " + startPlayer.getName());
+		
+		return startPlayer;
+	}
+	
+	private Player getOtherPlayer(Player currentPlayer) 
+	{
+		Player otherPlayer;
+		
+		if(currentPlayer.getName().equals(player1.getName()))
+		{
+			otherPlayer = player2;
+			
+			return otherPlayer;
+		}
+		else if(currentPlayer.getName().equals(player2.getName()))
+		{
+			otherPlayer = player1;
+			
+			return otherPlayer;
+		}
+		else
+		{
+			System.out.println("Error: getOtherPlayer(): currentPlayer != anyone.");
+		}
+		
+		return null;
+	}
+	
+	private void endGame() 
+	{
+		int player1HP = player1.getHp();
+		int player2HP = player2.getHp();
+		
+		if(player1HP <= 0 &&(player2.getPlayerType().equals(PlayerType.COMPUTER)))
+		{
+			System.out.println("Sorry!! NPC won!! Play again!");
+		}
+		else //Player2 human
+		{
+			System.out.println("Congratulations " + player2.getName() + "! You won!");			
+		}
+			
+		
+		if(player2HP <= 0 &&(player1.getPlayerType().equals(PlayerType.HUMAN)))
+		{
+			System.out.println("Congratulations " + player1.getName() + "! You won!");
+		}
+		else //Player1 NPC
+		{
+			System.out.println("Sorry!! NPC won!! Play again!");			
+		}	
+	}
+
 	public static void main(String[] args)
 	{
-		BattleshipGame testGame = new BattleshipGame();
-		testGame.run();
+		BattleshipGame testGame = new BattleshipGame(PlayerType.HUMAN, PlayerType.COMPUTER);
+		testGame.startGame();;
 	}
 }
