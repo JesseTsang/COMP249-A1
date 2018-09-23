@@ -1,11 +1,25 @@
 package comp249.a1.battleship;
 
+/**
+* <h1>The board class implements a String[] of size determined by
+* predefined constants. This array simulate the map of a Battleship game.</h1>
+* <p>
+* This class provides getter and setter functions to update the array.
+* This class also allows you to display the full map or only player's map (if user provide their array).
+* 
+*
+* @author  Jesse Tsang
+* @version 1.0
+* @since   23th September 2018
+*/
 public class Board 
 {	
 	private String[] battleshipGridArray;
 	
 	public static final int BOARD_ROW_SIZE = 8;
 	public static final int BOARD_COLUMN_SIZE = 8;
+	
+	public static final int ASCII_COEFFICIENT = 65; //Starts with A.
 	
 	public Board()
 	{
@@ -19,8 +33,19 @@ public class Board
 		int newLineChecker = 0;
 		int lineCounter = 1;
 		
+		int asciiValue = ASCII_COEFFICIENT;
+		
 		//Print columns labels
-		System.out.println("  A B C D E F G H");
+		System.out.print("  ");
+		
+		for(int i = 0; i < BOARD_COLUMN_SIZE; i++)			
+		{			
+			System.out.print((char)asciiValue + " ");
+			
+			asciiValue = asciiValue + 1;			
+		}
+		
+		System.out.println("");
 		
 		//Print row labels
 		System.out.print(lineCounter + " ");
@@ -56,8 +81,17 @@ public class Board
 		int newLineChecker = 0;
 		int lineCounter = 1;
 		
+		int asciiValue = ASCII_COEFFICIENT;
+		
 		//Print columns labels
-		System.out.println("  A B C D E F G H");
+		System.out.print("  ");
+		
+		for(int i = 0; i < BOARD_COLUMN_SIZE; i++)			
+		{
+			System.out.print((char)asciiValue + " ");
+			
+			asciiValue = asciiValue + 1;			
+		}
 		
 		//Print row labels
 		System.out.print(lineCounter + " ");
