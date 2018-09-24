@@ -45,7 +45,7 @@ public class Board
 			asciiValue = asciiValue + 1;			
 		}
 		
-		System.out.println("");
+		System.out.println(" ");
 		
 		//Print row labels
 		System.out.print(lineCounter + " ");
@@ -73,7 +73,7 @@ public class Board
 			}
 		}
 		
-		System.out.println("");
+		System.out.println(" ");
 	}
 	
 	public static void displayBoard(String[] board)
@@ -92,6 +92,8 @@ public class Board
 			
 			asciiValue = asciiValue + 1;			
 		}
+		
+		System.out.println(" ");
 		
 		//Print row labels
 		System.out.print(lineCounter + " ");
@@ -135,6 +137,15 @@ public class Board
 	public static void main(String[] args)
 	{
 		Board testBoard = new Board();
-		testBoard.displayBoard();		
+		
+		String[] test = testBoard.getBattleshipGridArray();
+		
+		for(int j = 0; j < test.length; j++)
+		{
+			test[j] = String.valueOf(j);			
+		}
+		
+		//testBoard.displayBoard();
+		Board.displayBoard(test);
 	}
 }
